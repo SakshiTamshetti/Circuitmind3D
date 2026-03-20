@@ -1,6 +1,7 @@
+import os
 import google.generativeai as genai
 
-API_KEY = "AIzaSyBN6iGPOm9wlpAYniMsJE0LoyHfjHSF7xI"
+API_KEY = os.environ.get("GEMINI_API_KEY", "")
 genai.configure(api_key=API_KEY)
 
 print("Listing models...")

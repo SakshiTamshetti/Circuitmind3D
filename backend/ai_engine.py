@@ -1,6 +1,7 @@
 import requests
+import os
 
-API_KEY = "AIzaSyBN6iGPOm9wlpAYniMsJE0LoyHfjHSF7xI"
+API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 def get_explanation(prompt):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"

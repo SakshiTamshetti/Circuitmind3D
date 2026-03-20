@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-page="home">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CircuitMind 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- ══ SVG SYMBOLS ══════════════════════════════════════════ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none"><defs>
+<symbol id="i-cpu" viewBox="0 0 20 20" fill="none"><rect x="5" y="5" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="7.5" y="7.5" width="5" height="5" rx=".5" stroke="currentColor" stroke-width="1.1"/><line x1="7" y1="2" x2="7" y2="4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="10" y1="2" x2="10" y2="4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="13" y1="2" x2="13" y2="4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="7" y1="15.5" x2="7" y2="18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="10" y1="15.5" x2="10" y2="18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="13" y1="15.5" x2="13" y2="18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="7" x2="4.5" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="10" x2="4.5" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="13" x2="4.5" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="15.5" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="15.5" y1="10" x2="18" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="15.5" y1="13" x2="18" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-gpu" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><rect x="5" y="9" width="4" height="4" rx=".75" stroke="currentColor" stroke-width="1"/><rect x="11" y="9" width="4" height="4" rx=".75" stroke="currentColor" stroke-width="1"/><line x1="5" y1="6" x2="5" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="8" y1="6" x2="8" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="11" y1="6" x2="11" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="14" y1="6" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-mb" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="4.5" y="4.5" width="5" height="4" rx=".75" stroke="currentColor" stroke-width="1"/><rect x="11.5" y="4.5" width="4" height="4" rx=".75" stroke="currentColor" stroke-width="1"/><rect x="4.5" y="11.5" width="3" height="4" rx=".5" stroke="currentColor" stroke-width="1"/><rect x="9.5" y="11.5" width="3" height="4" rx=".5" stroke="currentColor" stroke-width="1"/><rect x="14.5" y="11.5" width="1" height="4" rx=".25" stroke="currentColor" stroke-width="1"/></symbol>
+<symbol id="i-ram" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="8" width="2" height="4" rx=".4" fill="currentColor" opacity=".6"/><rect x="7.5" y="8" width="2" height="4" rx=".4" fill="currentColor" opacity=".6"/><rect x="11" y="8" width="2" height="4" rx=".4" fill="currentColor" opacity=".6"/><rect x="14.5" y="8" width="1.5" height="4" rx=".4" fill="currentColor" opacity=".6"/><line x1="4" y1="5" x2="4" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="7" y1="5" x2="7" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="10" y1="5" x2="10" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="13" y1="5" x2="13" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="5" x2="16" y2="3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+<symbol id="i-heart" viewBox="0 0 20 20" fill="none"><path d="M10 16S3 11.5 3 6.5A4 4 0 0 1 10 5a4 4 0 0 1 7 1.5C17 11.5 10 16 10 16Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+<symbol id="i-atom" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="1.8" fill="currentColor"/><ellipse cx="10" cy="10" rx="8" ry="3.5" stroke="currentColor" stroke-width="1.2"/><ellipse cx="10" cy="10" rx="8" ry="3.5" stroke="currentColor" stroke-width="1.2" transform="rotate(60 10 10)"/><ellipse cx="10" cy="10" rx="8" ry="3.5" stroke="currentColor" stroke-width="1.2" transform="rotate(120 10 10)"/></symbol>
+<symbol id="i-home" viewBox="0 0 20 20" fill="none"><path d="M3 9.5L10 3l7 6.5V17a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.5 18v-5h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-search" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12.5 12.5l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-sun" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="1.5" x2="10" y2="3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="10" y1="16.5" x2="10" y2="18.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1.5" y1="10" x2="3.5" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="16.5" y1="10" x2="18.5" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="4.1" y1="4.1" x2="5.5" y2="5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="14.5" y1="14.5" x2="15.9" y2="15.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="4.1" y1="15.9" x2="5.5" y2="14.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="14.5" y1="5.5" x2="15.9" y2="4.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-moon" viewBox="0 0 20 20" fill="none"><path d="M17 13A7 7 0 1 1 7 3a5.5 5.5 0 0 0 10 10Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+<symbol id="i-menu" viewBox="0 0 20 20" fill="none"><line x1="3" y1="6" x2="17" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="3" y1="14" x2="17" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-x" viewBox="0 0 20 20" fill="none"><path d="M4 4l12 12M16 4 4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-cr" viewBox="0 0 20 20" fill="none"><path d="M7.5 4.5l6 5.5-6 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-rotate" viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 1 0 12 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M14 7l2 3-3 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-ai" viewBox="0 0 20 20" fill="none"><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.4"/></symbol>
+<symbol id="i-send" viewBox="0 0 20 20" fill="none"><path d="M17 10H3M17 10l-6-6M17 10l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-file" viewBox="0 0 20 20" fill="none"><path d="M5 3h7l4 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M12 3v4h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-wire" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/><rect x="5" y="5" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1" fill="none" stroke-dasharray="2 2"/></symbol>
+<symbol id="i-layers" viewBox="0 0 20 20" fill="none"><path d="M2 10l8 4 8-4M2 14l8 4 8-4M2 6l8-4 8 4-8 4-8-4Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+<symbol id="i-export" viewBox="0 0 20 20" fill="none"><path d="M13 8l4 4-4 4M17 12H7a4 4 0 0 1 0-8h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-plus" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-minus" viewBox="0 0 16 16" fill="none"><path d="M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+<symbol id="i-target" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="8" r=".8" fill="currentColor"/></symbol>
+<symbol id="i-persp" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M3 8h10M5 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+<symbol id="i-play" viewBox="0 0 16 16" fill="none"><path d="M5 3.5l8 4.5-8 4.5V3.5Z" fill="currentColor"/></symbol>
+<symbol id="i-pause" viewBox="0 0 16 16" fill="none"><rect x="4" y="3" width="3" height="10" rx="1" fill="currentColor"/><rect x="9" y="3" width="3" height="10" rx="1" fill="currentColor"/></symbol>
+<symbol id="i-book" viewBox="0 0 20 20" fill="none"><path d="M4 3h10a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.4"/><line x1="2" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="3" x2="7" y2="18" stroke="currentColor" stroke-width="1.2"/></symbol>
+<symbol id="i-code" viewBox="0 0 20 20" fill="none"><path d="M6 7l-4 3 4 3M14 7l4 3-4 3M11 4l-2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-tag" viewBox="0 0 20 20" fill="none"><path d="M10.5 2H5a2 2 0 0 0-2 2v5.5a2 2 0 0 0 .59 1.41l7 7a2 2 0 0 0 2.82 0l5-5a2 2 0 0 0 0-2.82l-7-7A2 2 0 0 0 10.5 2Z" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></symbol>
+<symbol id="i-blog" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><line x1="5" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="5" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="5" y1="13" x2="10" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+<symbol id="i-users" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M14 10a3 3 0 0 1 0-6M17 17a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+<symbol id="i-briefcase" viewBox="0 0 20 20" fill="none"><rect x="2" y="7" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="2" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="1.2"/></symbol>
+<symbol id="i-shield" viewBox="0 0 20 20" fill="none"><path d="M10 2L4 5v5c0 4 3.6 6.9 6 8 2.4-1.1 6-4 6-8V5L10 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-scroll" viewBox="0 0 20 20" fill="none"><rect x="4" y="2" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><line x1="7" y1="6" x2="13" y2="6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><line x1="7" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><line x1="7" y1="12" x2="11" y2="12" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
+<symbol id="i-github" viewBox="0 0 20 20" fill="none"><path d="M10 2a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33C5.68 16.36 5.2 14.79 5.2 14.79c-.36-.93-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.58.82-2.14-.08-.2-.36-1.01.08-2.11 0 0 .67-.21 2.2.82A7.67 7.67 0 0 1 10 5.8c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11.51.56.82 1.27.82 2.14 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.19c0 .21.15.46.55.38A8 8 0 0 0 10 2Z" stroke="currentColor" stroke-width="1.2"/></symbol>
+<symbol id="i-twitter" viewBox="0 0 20 20" fill="none"><path d="M3 3l5.5 7.5L3 17h2l4.5-5.5L13.5 17H17l-5.7-7.8L16.5 3H15l-4.2 5-3.8-5H3Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+<symbol id="i-discord" viewBox="0 0 20 20" fill="none"><path d="M14.5 4A12.7 12.7 0 0 0 11.8 3a8.8 8.8 0 0 0-.39.8A11.7 11.7 0 0 0 8.6 3.8 8.7 8.7 0 0 0 8.2 3 12.8 12.8 0 0 0 5.5 4 13.5 13.5 0 0 0 3 13.3a13.6 13.6 0 0 0 4.2 2.1c.3-.4.57-.85.86-1.4a8.4 8.4 0 0 1-1.34-.65l.32-.25a9.6 9.6 0 0 0 8.2 0l.32.25c-.43.25-.88.47-1.35.65.24.48.52.95.86 1.4a13.5 13.5 0 0 0 4.2-2.1C19.7 9.2 18 5.7 14.5 4ZM7.5 11.2c-.83 0-1.5-.77-1.5-1.7s.65-1.7 1.5-1.7 1.52.77 1.5 1.7-.64 1.7-1.5 1.7Zm5 0c-.83 0-1.5-.77-1.5-1.7s.65-1.7 1.5-1.7 1.52.77 1.5 1.7-.64 1.7-1.5 1.7Z" stroke="currentColor" stroke-width="1.1"/></symbol>
+</defs></svg>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOME PAGE
+═══════════════════════════════════════════════════════ -->
+<div id="pg-home" class="page">
+  <div class="mob-menu" id="mobMenu">
+    <a onclick="G('viewer');closeMob()"><svg width="15" height="15"><use href="#i-layers"/></svg>Explore Models</a>
+    <a onclick="G('ai');closeMob()"><svg width="15" height="15"><use href="#i-ai"/></svg>AI Chat</a>
+    <a onclick="G('categories');closeMob()"><svg width="15" height="15"><use href="#i-tag"/></svg>Categories</a>
+  </div>
+  <nav class="hnav">
+    <div class="logo" onclick="G('home')">
+      <div class="lmark"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L12.5 7 7 12.5 1.5 7Z" stroke="white" stroke-width="1.5" fill="none"/><circle cx="7" cy="7" r="2" fill="white"/></svg></div>
+      CircuitMind 3D
+    </div>
+    <div class="hnav-links">
+      <a onclick="G('viewer')"><svg width="13" height="13"><use href="#i-layers"/></svg>Explore</a>
+      <a onclick="G('ai')"><svg width="13" height="13"><use href="#i-ai"/></svg>AI Chat</a>
+    </div>
+    <div class="hnav-right">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <svg class="ico-sun" width="15" height="15"><use href="#i-sun"/></svg>
+        <svg class="ico-moon" width="15" height="15"><use href="#i-moon"/></svg>
+      </button>
+      <button class="btn-primary" onclick="G('viewer')">Launch App <svg width="13" height="13"><use href="#i-cr"/></svg></button>
+      <button class="hamburger" onclick="toggleMob()"><svg width="17" height="17"><use href="#i-menu"/></svg></button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge"><span class="bdot"></span>Interactive 3D Scientific Explorer &mdash; v2.1</div>
+    <h1 class="htitle">Understand <em>anything</em><br>in three dimensions</h1>
+    <p class="hsub">Explore intricate 3D models of CPUs, GPUs, biological cells, and atomic structures &mdash; powered by real-time AI explanation and interactive learning.</p>
+    <div class="swrap">
+      <span class="s-ico"><svg width="15" height="15"><use href="#i-search"/></svg></span>
+      <input class="sbox" id="searchInput" type="text" placeholder="Search models &mdash; CPU, GPU, heart, atom&hellip;" onkeydown="if(event.key==='Enter')doSearch()">
+      <span class="s-kbd">&#x21B5;</span>
+    </div>
+    <div class="shints">Try:
+      <span class="htag" onclick="openModel('CPU')">CPU Architecture</span>
+      <span class="htag" onclick="openModel('Heart')">Human Heart</span>
+      <span class="htag" onclick="openModel('GPU')">GPU Chip</span>
+      <span class="htag" onclick="openModel('Atom')">Carbon Atom</span>
+      <span class="htag" onclick="openModel('RAM')">RAM Module</span>
+    </div>
+  </div>
+
+  <div class="slabel"><span>Featured Categories</span></div>
+  <div class="tgrid">
+    <div class="tcard" style="--cc:#4F8EF7" onclick="openModel('CPU')">
+      <div class="cico" style="background:rgba(79,142,247,.12);border-color:rgba(79,142,247,.25);color:#4F8EF7"><svg width="22" height="22"><use href="#i-cpu"/></svg></div>
+      <div class="cname">CPU Architecture</div>
+      <div class="cdesc">Die layouts, cache hierarchy, cores and interconnects at nanometer scale.</div>
+      <div class="cmeta"><span class="ctag">Hardware</span><span class="ctag">12 models</span><span class="carr"><svg width="13" height="13"><use href="#i-cr"/></svg></span></div>
+    </div>
+    <div class="tcard" style="--cc:#34D399" onclick="openModel('GPU')">
+      <div class="cico" style="background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.22);color:#34D399"><svg width="22" height="22"><use href="#i-gpu"/></svg></div>
+      <div class="cname">GPU &amp; Graphics</div>
+      <div class="cdesc">Shader units, VRAM stacks, compute clusters and cooling architectures.</div>
+      <div class="cmeta"><span class="ctag">Hardware</span><span class="ctag">8 models</span><span class="carr"><svg width="13" height="13"><use href="#i-cr"/></svg></span></div>
+    </div>
+    <div class="tcard" style="--cc:#F59E0B" onclick="openModel('Motherboard')">
+      <div class="cico" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.22);color:#F59E0B"><svg width="22" height="22"><use href="#i-mb"/></svg></div>
+      <div class="cname">Motherboard &amp; PCB</div>
+      <div class="cdesc">Trace routing, VRM stages, chipset topology and connector standards.</div>
+      <div class="cmeta"><span class="ctag">Hardware</span><span class="ctag">6 models</span><span class="carr"><svg width="13" height="13"><use href="#i-cr"/></svg></span></div>
+    </div>
+    <div class="tcard" style="--cc:#F87171" onclick="openModel('Heart')">
+      <div class="cico" style="background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.22);color:#F87171"><svg width="22" height="22"><use href="#i-heart"/></svg></div>
+      <div class="cname">Human Heart</div>
+      <div class="cdesc">Cardiac anatomy, blood flow, valve mechanics and the conduction system.</div>
+      <div class="cmeta"><span class="ctag">Biology</span><span class="ctag">9 models</span><span class="carr"><svg width="13" height="13"><use href="#i-cr"/></svg></span></div>
+    </div>
+    <div class="tcard" style="--cc:#A78BFA" onclick="openModel('Atom')">
+      <div class="cico" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.22);color:#A78BFA"><svg width="22" height="22"><use href="#i-atom"/></svg></div>
+      <div class="cname">Atomic Structure</div>
+      <div class="cdesc">Electron orbitals, nuclear composition and quantum-mechanical clouds.</div>
+      <div class="cmeta"><span class="ctag">Chemistry</span><span class="ctag">7 models</span><span class="carr"><svg width="13" height="13"><use href="#i-cr"/></svg></span></div>
+    </div>
+    <div class="tcard" style="--cc:#38BDF8" onclick="openModel('RAM')">
+      <div class="cico" style="background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.22);color:#38BDF8"><svg width="22" height="22"><use href="#i-ram"/></svg></div>
+      <div class="cname">Memory Systems</div>
+      <div class="cdesc">DRAM cell arrays, DDR timing diagrams, cache lines and NAND flash.</div>
+      <div class="cmeta"><span class="ctag">Hardware</span><span class="ctag">6 models</span><span class="carr"><svg width="13" height="13"><use href="#i-cr"/></svg></span></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-grid" style="grid-template-columns:2fr 1fr 1fr">
+      <div class="footer-brand">
+        <div class="logo" style="margin-bottom:12px">
+          <div class="lmark"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L12.5 7 7 12.5 1.5 7Z" stroke="white" stroke-width="1.5" fill="none"/><circle cx="7" cy="7" r="2" fill="white"/></svg></div>
+          CircuitMind 3D
+        </div>
+        <p>An interactive 3D scientific model explorer with real-time AI explanation, built for students, engineers, and curious minds.</p>
+        <div class="footer-socials">
+          <button class="fsocbtn"><svg width="14" height="14"><use href="#i-github"/></svg></button>
+          <button class="fsocbtn"><svg width="14" height="14"><use href="#i-twitter"/></svg></button>
+          <button class="fsocbtn"><svg width="14" height="14"><use href="#i-discord"/></svg></button>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Product</h4>
+        <ul>
+          <li><a onclick="G('viewer')"><svg width="12" height="12"><use href="#i-layers"/></svg>3D Explorer</a></li>
+          <li><a onclick="G('ai')"><svg width="12" height="12"><use href="#i-ai"/></svg>AI Assistant</a></li>
+        </ul>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <ul>
+          <li><a onclick="G('about')"><svg width="12" height="12"><use href="#i-users"/></svg>About Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="fcopy">&copy; 2026 CircuitMind 3D. All rights reserved.</div>
+      <div class="fstatus"><span class="fsdot"></span>All systems operational</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VIEWER PAGE
+═══════════════════════════════════════════════════════ -->
+<div id="pg-viewer" class="page">
+  <div class="shell">
+    <div class="tbar">
+      <button class="sidebar-toggle" onclick="toggleSide('vAside')"><svg width="15" height="15"><use href="#i-menu"/></svg></button>
+      <div class="tbar-logo" onclick="G('home')">
+        <div class="lmark" style="width:22px;height:22px"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L12.5 7 7 12.5 1.5 7Z" stroke="white" stroke-width="1.5" fill="none"/><circle cx="7" cy="7" r="2" fill="white"/></svg></div>
+        CircuitMind
+      </div>
+      <div class="tbar-bc">
+        <span id="vbc-cat">Hardware</span><span class="bc-sep">&rsaquo;</span>
+        <span class="bc-cur" id="vbc">CPU Architecture</span>
+      </div>
+      <div class="tbar-acts">
+        <div class="tabsw">
+          <button class="on" onclick="G('viewer')">3D Viewer</button>
+          <button onclick="G('ai')">AI Chat</button>
+        </div>
+        <button class="btn-ghost" id="wfBtn" onclick="this.classList.toggle('on');toggleWireframe()">
+          <svg width="13" height="13"><use href="#i-wire"/></svg><span class="hide-sm">Wireframe</span>
+        </button>
+        <button class="btn-ghost" id="rotBtn" onclick="this.classList.toggle('on');toggleAutoRotate()">
+          <svg width="13" height="13"><use href="#i-rotate"/></svg><span class="hide-sm">Auto-rotate</span>
+        </button>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <svg class="ico-sun" width="14" height="14"><use href="#i-sun"/></svg>
+          <svg class="ico-moon" width="14" height="14"><use href="#i-moon"/></svg>
+        </button>
+        <button class="btn-ghost" onclick="G('ai')"><svg width="13" height="13"><use href="#i-ai"/></svg><span class="hide-sm">Ask AI</span></button>
+      </div>
+    </div>
+    <div class="abody">
+      <div class="aside" id="vAside">
+        <div class="asec">
+          <div class="asec-lbl">Hardware</div>
+          <div class="aitem on" onclick="selModel(this,'CPU Architecture','Hardware','CPU')"><span class="aico"><svg width="15" height="15"><use href="#i-cpu"/></svg></span>CPU Architecture<span class="abadge">12</span></div>
+          <div class="aitem" onclick="selModel(this,'GPU &amp; Graphics','Hardware','GPU')"><span class="aico"><svg width="15" height="15"><use href="#i-gpu"/></svg></span>GPU &amp; Graphics<span class="abadge">8</span></div>
+          <div class="aitem" onclick="selModel(this,'Motherboard','Hardware','Motherboard')"><span class="aico"><svg width="15" height="15"><use href="#i-mb"/></svg></span>Motherboard<span class="abadge">6</span></div>
+          <div class="aitem" onclick="selModel(this,'RAM Module','Hardware','RAM')"><span class="aico"><svg width="15" height="15"><use href="#i-ram"/></svg></span>RAM Module<span class="abadge">5</span></div>
+        </div>
+        <div class="adiv"></div>
+        <div class="asec">
+          <div class="asec-lbl">Biology</div>
+          <div class="aitem" onclick="selModel(this,'Human Heart','Biology','Heart')"><span class="aico"><svg width="15" height="15"><use href="#i-heart"/></svg></span>Human Heart<span class="abadge">9</span></div>
+        </div>
+        <div class="adiv"></div>
+        <div class="asec">
+          <div class="asec-lbl">Chemistry</div>
+          <div class="aitem" onclick="selModel(this,'Carbon Atom','Chemistry','Atom')"><span class="aico"><svg width="15" height="15"><use href="#i-atom"/></svg></span>Carbon Atom<span class="abadge">7</span></div>
+        </div>
+        <div class="abot"><button class="ahome" onclick="G('home')"><svg width="13" height="13"><use href="#i-home"/></svg>Back to Home</button></div>
+      </div>
+
+      <div class="mcontent">
+        <div class="varea">
+          <div class="vwrap">
+            <div class="viewport-container">
+              <!--
+              ╔═══════════════════════════════════════════════════════╗
+              ║  3D MODEL INTEGRATION POINT — #viewport-mount         ║
+              ╠═══════════════════════════════════════════════════════╣
+              ║  const mount = document.getElementById('viewport-mount');
+              ║  Step 1: const renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+              ║  Step 2: renderer.setSize(mount.clientWidth, mount.clientHeight);
+              ║  Step 3: mount.innerHTML=''; mount.appendChild(renderer.domElement);
+              ║  Step 4: Update labels — see js/model.js updateLabels()
+              ║  Step 5: Wire controls — see js/viewer.js
+              ║  Step 6: Component hook — window.onComponentSelect(name)
+              ╚═══════════════════════════════════════════════════════╝
+              -->
+              <div id="viewport-mount">
+                <div class="model-placeholder-inner">
+                  <div class="model-ring"><div class="model-dot"></div></div>
+                  <span id="model-name-label">Drop your 3D model here</span>
+                  <span id="model-poly-info">Awaiting canvas from your renderer</span>
+                </div>
+              </div>
+
+              <div class="vpctrl">
+                <div class="vpgrp">
+                  <button class="vpcb" title="Zoom In" onclick="/* camera.position.z -= 0.5 */"><svg width="13" height="13"><use href="#i-plus"/></svg></button>
+                  <button class="vpcb" title="Zoom Out" onclick="/* camera.position.z += 0.5 */"><svg width="13" height="13"><use href="#i-minus"/></svg></button>
+                </div>
+                <div class="vpgrp">
+                  <button class="vpcb" title="Reset Camera" onclick="/* controls.reset() */"><svg width="13" height="13"><use href="#i-target"/></svg></button>
+                </div>
+                <div class="vpgrp">
+                  <button class="vpcb on" title="Perspective" id="perspBtn"
+                    onclick="document.getElementById('perspBtn').classList.add('on');document.getElementById('orthoBtn').classList.remove('on');document.getElementById('camInfo').textContent='Perspective · 75°';">
+                    <svg width="13" height="13"><use href="#i-persp"/></svg>
+                  </button>
+                  <button class="vpcb" title="Orthographic" id="orthoBtn"
+                    onclick="document.getElementById('orthoBtn').classList.add('on');document.getElementById('perspBtn').classList.remove('on');document.getElementById('camInfo').textContent='Orthographic';">
+                  </button>
+                </div>
+              </div>
+
+              <div class="vpinfo">
+                <div class="vprow"><span class="vpkey">REN</span><span>WebGL 2.0 &middot; Three.js</span></div>
+                <div class="vprow"><span class="vpkey">CAM</span><span id="camInfo">Perspective &middot; 75&deg;</span></div>
+                <div class="vprow"><span class="vpkey">OBJ</span><span id="objInfo">Awaiting model</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="vpanel">
+            <div class="phead">
+              <div class="ptitle" id="ptitle">Intel Core i9 &mdash; Die Map</div>
+              <div style="display:flex;align-items:center;gap:7px;margin-top:6px">
+                <span class="badge badge-b" id="pcat">Hardware &middot; CPU</span>
+                <span class="badge badge-g">Interactive</span>
+              </div>
+            </div>
+            <div class="pbody">
+              <div class="spgrp">
+                <div class="spgrp-lbl">Specifications</div>
+                <div class="sprow"><span class="spk">Process Node</span><span class="spv hi" id="sp1">Intel 7 (10nm)</span></div>
+                <div class="sprow"><span class="spk">Transistors</span><span class="spv" id="sp2">10 Billion</span></div>
+                <div class="sprow"><span class="spk">Die Size</span><span class="spv" id="sp3">257 mm&sup2;</span></div>
+                <div class="sprow"><span class="spk">TDP</span><span class="spv gd" id="sp4">125W</span></div>
+                <div class="sprow"><span class="spk">Cores / Threads</span><span class="spv" id="sp5">24C / 32T</span></div>
+              </div>
+              <div class="spgrp" id="perfGrp">
+                <div class="spgrp-lbl">Performance Index</div>
+                <div class="sprow"><span class="spk">Single Thread</span><span class="spv gn" id="perf1">97 / 100</span></div>
+                <div style="padding:4px 0"><div class="pbar"><div class="pfill" id="pbar1" style="width:97%"></div></div></div>
+                <div class="sprow"><span class="spk">Multi Thread</span><span class="spv gn" id="perf2">89 / 100</span></div>
+                <div style="padding:4px 0"><div class="pbar"><div class="pfill" id="pbar2" style="width:89%"></div></div></div>
+              </div>
+              <div class="spgrp">
+                <div class="spgrp-lbl">Select Component</div>
+                <div class="cchips" id="chips"></div>
+                <div class="comp-desc-panel" id="compDesc" style="display:none">
+                  <div class="comp-desc-title">
+                    <svg width="13" height="13" id="compDescIco"><use href="#i-cpu"/></svg>
+                    <span id="compDescTitle">Component Name</span>
+                  </div>
+                  <div class="comp-desc-body" id="compDescBody">Select a component above to see its description.</div>
+                  <div class="comp-desc-specs" id="compDescSpecs"></div>
+                </div>
+              </div>
+            </div>
+            <div class="psec">
+              <button class="btn-ghost" style="width:100%;justify-content:center" onclick="G('ai')">
+                <svg width="13" height="13"><use href="#i-ai"/></svg>Ask AI about this model
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="vtl">
+          <button class="tlplay" id="playBtn" onclick="togglePlay(this)">
+            <svg width="11" height="11" id="playIco"><use href="#i-play"/></svg>
+          </button>
+          <div class="tltrack" onclick="seekTl(event,this)">
+            <div class="tlprog" id="tlprog"><div class="tlhnd"></div></div>
+          </div>
+          <span class="tltime" id="tltime">0:00 / 2:30</span>
+          <button class="btn-ghost" onclick="this.classList.toggle('on')" style="padding:5px 9px;font-size:11.5px">Loop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     AI CHAT PAGE
+═══════════════════════════════════════════════════════ -->
+<div id="pg-ai" class="page">
+  <div class="shell">
+    <div class="tbar">
+      <button class="sidebar-toggle" onclick="toggleSide('aAside')"><svg width="15" height="15"><use href="#i-menu"/></svg></button>
+      <div class="tbar-logo" onclick="G('home')">
+        <div class="lmark" style="width:22px;height:22px"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L12.5 7 7 12.5 1.5 7Z" stroke="white" stroke-width="1.5" fill="none"/><circle cx="7" cy="7" r="2" fill="white"/></svg></div>
+        CircuitMind
+      </div>
+      <div class="tbar-bc"><span>AI Assistant</span><span class="bc-sep">&rsaquo;</span><span class="bc-cur" id="aibc">CPU Architecture</span></div>
+      <div class="tbar-acts">
+        <div class="tabsw"><button onclick="G('viewer')">3D Viewer</button><button class="on">AI Chat</button></div>
+        <button class="btn-ghost" onclick="clearChat()"><svg width="13" height="13"><use href="#i-x"/></svg><span class="hide-sm">Clear</span></button>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <svg class="ico-sun" width="14" height="14"><use href="#i-sun"/></svg>
+          <svg class="ico-moon" width="14" height="14"><use href="#i-moon"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="abody">
+      <div class="aside" id="aAside">
+        <div class="asec">
+          <div class="asec-lbl">Active Context</div>
+          <div class="aitem on"><span class="aico" id="actxIco"><svg width="15" height="15"><use href="#i-cpu"/></svg></span><span id="actxName">CPU Architecture</span></div>
+        </div>
+        <div class="adiv"></div>
+        <div class="asec">
+          <div class="asec-lbl">Switch Context</div>
+          <div class="aitem" onclick="swCtx(this,'GPU Architecture','i-gpu')"><span class="aico"><svg width="15" height="15"><use href="#i-gpu"/></svg></span>GPU Architecture</div>
+          <div class="aitem" onclick="swCtx(this,'Motherboard','i-mb')"><span class="aico"><svg width="15" height="15"><use href="#i-mb"/></svg></span>Motherboard</div>
+          <div class="aitem" onclick="swCtx(this,'Human Heart','i-heart')"><span class="aico"><svg width="15" height="15"><use href="#i-heart"/></svg></span>Human Heart</div>
+          <div class="aitem" onclick="swCtx(this,'Carbon Atom','i-atom')"><span class="aico"><svg width="15" height="15"><use href="#i-atom"/></svg></span>Carbon Atom</div>
+          <div class="aitem" onclick="swCtx(this,'RAM Module','i-ram')"><span class="aico"><svg width="15" height="15"><use href="#i-ram"/></svg></span>RAM Module</div>
+        </div>
+        <div class="adiv"></div>
+        <div class="asec">
+          <div class="asec-lbl">Recent</div>
+          <div class="aitem" style="opacity:.4;font-size:12px"><span class="aico"><svg width="13" height="13"><use href="#i-file"/></svg></span>How does L3 cache&hellip;</div>
+          <div class="aitem" style="opacity:.4;font-size:12px"><span class="aico"><svg width="13" height="13"><use href="#i-file"/></svg></span>Explain P-cores vs&hellip;</div>
+        </div>
+        <div class="abot"><button class="ahome" onclick="G('home')"><svg width="13" height="13"><use href="#i-home"/></svg>Back to Home</button></div>
+      </div>
+      <div class="mcontent">
+        <div class="cmain">
+          <div class="cmsgs" id="cmsgs">
+            <div class="mrow">
+              <div class="mav ai"><svg width="13" height="13"><use href="#i-ai"/></svg></div>
+              <div class="mbub"><div class="mname">CircuitMind AI</div>
+                <div class="mtxt">Hello! I&rsquo;m your CircuitMind AI assistant, focused on <strong>CPU Architecture</strong>. Ask me about cores, cache hierarchy, pipelines, thermal design, or how components relate in the 3D model.</div>
+                <div class="mtime">Just now</div>
+              </div>
+            </div>
+          </div>
+          <div class="cinput">
+            <div class="cirow">
+              <textarea class="cita" id="cita" placeholder="Ask about this model&hellip;" rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+                oninput="autoR(this)"></textarea>
+              <button class="csend" onclick="sendMsg()"><svg width="15" height="15"><use href="#i-send"/></svg></button>
+            </div>
+            <div class="cimeta">
+              <span class="cimtag"><span class="cimdot"></span>AI Ready</span>
+              <span style="color:var(--t3)">&middot;</span>
+              <span class="cimtag">Context: <span id="cinCtx" style="color:var(--t1)">CPU Architecture</span></span>
+              <span style="margin-left:auto;font-family:var(--fm);font-size:10px;color:var(--t3)">&#x21B5; send &nbsp;</span>
+              <span class="cimkbd">Shift+&#x21B5;</span><span style="font-family:var(--fm);font-size:10px;color:var(--t3)">new line</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="airight">
+        <div class="airscroll">
+          <div class="airsec">
+            <div class="airlbl">Current Context</div>
+            <div class="ctxcard">
+              <div class="ctxico" id="ctxico"><svg width="15" height="15"><use href="#i-cpu"/></svg></div>
+              <div><div class="ctxname" id="ctxname">CPU Architecture</div><div class="ctxtype" id="ctxtype">Intel Core i9 &middot; Die Map</div></div>
+            </div>
+            <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:4px" onclick="G('viewer')"><svg width="12" height="12"><use href="#i-layers"/></svg>View in 3D</button>
+          </div>
+          <div class="airsec">
+            <div class="airlbl">Quick Prompts</div>
+            <button class="qprompt" onclick="injP(this)"><svg width="11" height="11" style="flex-shrink:0"><use href="#i-cr"/></svg>Explain the cache hierarchy</button>
+            <button class="qprompt" onclick="injP(this)"><svg width="11" height="11" style="flex-shrink:0"><use href="#i-cr"/></svg>How does thermal throttling work?</button>
+            <button class="qprompt" onclick="injP(this)"><svg width="11" height="11" style="flex-shrink:0"><use href="#i-cr"/></svg>What is the ring bus used for?</button>
+            <button class="qprompt" onclick="injP(this)"><svg width="11" height="11" style="flex-shrink:0"><use href="#i-cr"/></svg>Describe the memory controller</button>
+            <button class="qprompt" onclick="injP(this)"><svg width="11" height="11" style="flex-shrink:0"><use href="#i-cr"/></svg>How are cores scheduled by OS?</button>
+          </div>
+          <div class="airsec">
+            <div class="airlbl">Session</div>
+            <div class="ssrow"><span class="sskey">Messages</span><span class="ssval" id="msgc">1</span></div>
+            <div class="ssrow"><span class="sskey">Status</span><span class="ssval" style="color:var(--grn)">&bull; Ready</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODEL LIBRARY PAGE ════════════════════════════════ -->
+<div id="pg-library" class="page">
+  <div class="inner-page">
+    <div class="inner-content">
+      
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <span style="font-family:var(--fm);font-size:11px;color:var(--t3)">Filter:</span>
+        <button class="badge badge-b" style="cursor:pointer" onclick="filterLib('all',this)">All (48)</button>
+        <button class="badge" style="cursor:pointer;background:var(--bg2);border:1px solid var(--bdr);color:var(--t2)" onclick="filterLib('Hardware',this)">Hardware (37)</button>
+        <button class="badge" style="cursor:pointer;background:var(--bg2);border:1px solid var(--bdr);color:var(--t2)" onclick="filterLib('Biology',this)">Biology (9)</button>
+        <button class="badge" style="cursor:pointer;background:var(--bg2);border:1px solid var(--bdr);color:var(--t2)" onclick="filterLib('Chemistry',this)">Chemistry (7)</button>
+        <button class="badge" style="cursor:pointer;background:var(--bg2);border:1px solid var(--bdr);color:var(--t2)" onclick="filterLib('Physics',this)">Physics (4)</button>
+      </div>
+      <div class="model-grid" id="modelGrid"></div>
+    </div>
+    <footer class="footer" style="margin-top:0"><div class="footer-bottom" style="padding:20px 0 0">
+      <div class="fcopy">&copy; 2026 CircuitMind 3D</div>
+      <div class="flinks"><a onclick="G('home')">Home</a></div>
+    </div></footer>
+  </div>
+</div>
+
+<!-- ═══ CATEGORIES PAGE ══════════════════════════════════ -->
+<div id="pg-cats" class="page">
+  <div class="inner-page">
+    <div class="inner-content">
+      <div class="inner-hero">
+        <div class="page-tag"><svg width="12" height="12"><use href="#i-tag"/></svg>Browse</div>
+        <h1>Categories</h1>
+        <p>Explore 3D models organized by scientific domain.</p>
+      </div>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="openModel('CPU')">
+          <div class="cat-icon" style="background:rgba(79,142,247,.12);border-color:rgba(79,142,247,.25);color:#4F8EF7"><svg width="24" height="24"><use href="#i-cpu"/></svg></div>
+          <div class="cat-name">Hardware &amp; Electronics</div>
+          <div class="cat-desc">CPUs, GPUs, RAM, motherboards, SSDs, and other silicon-level components.</div>
+          <div class="cat-count">37 models &middot; 4 subcategories</div>
+        </div>
+        <div class="cat-card" onclick="openModel('Heart')">
+          <div class="cat-icon" style="background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.22);color:#F87171"><svg width="24" height="24"><use href="#i-heart"/></svg></div>
+          <div class="cat-name">Biology &amp; Anatomy</div>
+          <div class="cat-desc">Human organs, cellular structures, musculoskeletal systems and biological processes.</div>
+          <div class="cat-count">9 models &middot; 3 subcategories</div>
+        </div>
+        <div class="cat-card" onclick="openModel('Atom')">
+          <div class="cat-icon" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.22);color:#A78BFA"><svg width="24" height="24"><use href="#i-atom"/></svg></div>
+          <div class="cat-name">Chemistry &amp; Molecules</div>
+          <div class="cat-desc">Atomic models, molecular bonds, crystal structures and reaction diagrams.</div>
+          <div class="cat-count">7 models &middot; 2 subcategories</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-icon" style="background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.22);color:#34D399"><svg width="24" height="24"><use href="#i-layers"/></svg></div>
+          <div class="cat-name">Physics &amp; Forces</div>
+          <div class="cat-desc">Electromagnetic fields, wave propagation, fluid dynamics and gravitational models.</div>
+          <div class="cat-count">4 models &middot; Coming soon</div>
+        </div>
+      </div>
+    </div>
+    <footer class="footer" style="margin-top:32px"><div class="footer-bottom" style="padding:20px 0 0">
+      <div class="fcopy">&copy; 2025 CircuitMind 3D</div>
+      <div class="flinks"><a onclick="G('home')">Home</a></div>
+    </div></footer>
+  </div>
+</div>
+
+<!-- ═══ ABOUT PAGE ════════════════════════════════════════ -->
+<div id="pg-about" class="page">
+  <div class="inner-page">
+    <div class="tbar">
+      <div class="tbar-logo" onclick="G('home')"><div class="lmark" style="width:22px;height:22px"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L12.5 7 7 12.5 1.5 7Z" stroke="white" stroke-width="1.5" fill="none"/><circle cx="7" cy="7" r="2" fill="white"/></svg></div>CircuitMind</div>
+      <div class="tbar-bc"><span>Company</span><span class="bc-sep">&rsaquo;</span><span class="bc-cur">About Us</span></div>
+      <div class="tbar-acts"><button class="theme-toggle" onclick="toggleTheme()"><svg class="ico-sun" width="14" height="14"><use href="#i-sun"/></svg><svg class="ico-moon" width="14" height="14"><use href="#i-moon"/></svg></button><button class="btn-ghost" onclick="G('home')"><svg width="13" height="13"><use href="#i-home"/></svg></button></div>
+    </div>
+    <div style="flex:1;overflow-y:auto"><div class="inner-content">
+      <div class="inner-hero">
+        <div class="page-tag"><svg width="12" height="12"><use href="#i-users"/></svg>Company</div>
+        <h1>About CircuitMind 3D</h1>
+        <p>We build tools that make complex scientific concepts visually intuitive and AI-explainable for everyone.</p>
+      </div>
+      <div class="section-body">
+        <h3>Our Mission</h3>
+        <p>CircuitMind 3D exists to close the gap between abstract scientific knowledge and genuine understanding. Seeing something in three dimensions — and being able to ask questions about it in plain language — transforms how people learn.</p>
+        <h3>What We Build</h3>
+        <p>Our platform combines high-fidelity 3D models of scientific subjects with real-time AI explanation. Every component is annotated, every question is answerable, and every model is interactive.</p>
+        <h3>Technology</h3>
+        <p>We use WebGL and Three.js for rendering, a custom annotation layer for component metadata, and large language models for contextual explanation. Our architecture is open and designed for easy integration with custom ML models.</p>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title">The Team</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:16px">
+        <div style="background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px;text-align:center">
+          <div style="width:52px;height:52px;background:rgba(79,142,247,.12);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:var(--ac)"><svg width="24" height="24"><use href="#i-users"/></svg></div>
+          <div style="font-family:var(--fh);font-size:14px;font-weight:700;color:var(--t0);margin-bottom:3px">Founder</div>
+          <div style="font-family:var(--fm);font-size:10.5px;color:var(--t3)">CEO &amp; Vision</div>
+        </div>
+        <div style="background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px;text-align:center">
+          <div style="width:52px;height:52px;background:rgba(52,211,153,.1);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:var(--grn)"><svg width="24" height="24"><use href="#i-code"/></svg></div>
+          <div style="font-family:var(--fh);font-size:14px;font-weight:700;color:var(--t0);margin-bottom:3px">Engineering</div>
+          <div style="font-family:var(--fm);font-size:10.5px;color:var(--t3)">3D &amp; WebGL</div>
+        </div>
+        <div style="background:var(--bg1);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px;text-align:center">
+          <div style="width:52px;height:52px;background:rgba(167,139,250,.1);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:var(--pur)"><svg width="24" height="24"><use href="#i-ai"/></svg></div>
+          <div style="font-family:var(--fh);font-size:14px;font-weight:700;color:var(--t0);margin-bottom:3px">AI Research</div>
+          <div style="font-family:var(--fm);font-size:10.5px;color:var(--t3)">LLM &amp; Context</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- JS files loaded at end of body -->
+<script src="js/nav.js"></script>
+<script src="js/data.js"></script>
+<script src="js/model.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/viewer.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

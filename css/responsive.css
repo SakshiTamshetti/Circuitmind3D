@@ -1,0 +1,32 @@
+/* ═══ RESPONSIVE ════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .vpanel{width:264px}
+  .airight{width:240px}
+}
+@media(max-width:900px){
+  :root{--sw:220px}
+  .vpanel{display:none}
+  .airight{display:none}
+  .aside{position:absolute;z-index:50;height:100%;box-shadow:4px 0 24px var(--shadow)}
+  .aside.closed{transform:translateX(-100%);width:var(--sw)}
+  .sidebar-toggle{display:flex}
+  .tbar-logo{width:auto;border-right:none;padding:0 12px}
+  .tbar-bc{display:none}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+}
+@media(max-width:640px){
+  .hnav-links{display:none}
+  .hamburger{display:flex}
+  .tgrid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .tabsw{display:none}
+  .mbub{max-width:86%}
+  .model-grid,.cat-grid{grid-template-columns:1fr}
+  :root{--th:52px}
+}
+@media(max-width:480px){
+  .footer-grid{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;align-items:flex-start}
+}
+.hide-sm{}
+@media(max-width:760px){.hide-sm{display:none}}

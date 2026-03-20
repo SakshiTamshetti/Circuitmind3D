@@ -1,9 +1,9 @@
 /* ═══ THEME TOKENS ══════════════════════════════════════════ */
 [data-theme="dark"] {
-  --bg0: #08090d;
-  --bg1: #0e1017;
-  --bg2: #141720;
-  --bg3: #1c2030;
+  --bg0: #0f172a;
+  --bg1: #1e293b;
+  --bg2: #1e293b;
+  --bg3: #334155;
   --bdr: rgba(255, 255, 255, .07);
   --bdm: rgba(255, 255, 255, .13);
   --bdh: rgba(255, 255, 255, .22);
@@ -36,14 +36,14 @@
 }
 
 :root {
-  --ac: #4F8EF7;
+  --ac: #38BDF8;
   --ac2: #38BDF8;
   --gold: #E8B84B;
   --grn: #34D399;
   --red: #F87171;
   --pur: #A78BFA;
-  --fh: 'Syne', sans-serif;
-  --fb: 'Instrument Sans', sans-serif;
+  --fh: 'Inter', sans-serif;
+  --fb: 'Inter', sans-serif;
   --fm: 'JetBrains Mono', monospace;
   --sw: 254px;
   --th: 56px;

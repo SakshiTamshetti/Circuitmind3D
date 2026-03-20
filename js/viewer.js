@@ -1,108 +1,195 @@
-/* ═══ viewer.js — timeline, 3D renderer hooks, library ══════
-   Depends on: data.js (LIB_MODELS), model.js (openModel)
-═══════════════════════════════════════════════════════════ */
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-/* ── 3D RENDERER HOOKS ──────────────────────────────────────
-   These are called by the toolbar Wireframe / Auto-rotate
-   buttons. Replace the console.log with your renderer calls.
-─────────────────────────────────────────────────────────── */
-window.toggleWireframe = function () {
-  /* WIRE TO: scene.traverse(function(m) {
-       if (m.isMesh) m.material.wireframe = !m.material.wireframe;
-     }); */
-  console.log('[CircuitMind] toggleWireframe — wire this to your scene');
-};
+let scene, camera, renderer, controls;
+let currentModel;
 
-window.toggleAutoRotate = function () {
-  /* WIRE TO: controls.autoRotate = !controls.autoRotate; */
-  console.log('[CircuitMind] toggleAutoRotate — wire this to your OrbitControls');
-};
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
-/* ── TIMELINE ────────────────────────────────────────────────
-   The play button and scrub bar animate a progress indicator.
-   Wire to your Three.js AnimationMixer:
-     togglePlay  → mixer.timeScale = playing ? 1 : 0
-     seekTl      → mixer.setTime(animDuration * pct / 100)
-─────────────────────────────────────────────────────────── */
-var _playing = false;
-var _tlPct = 0;
-var _raf = null;
+export function initViewer() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0f172a);
 
-window.togglePlay = function (btn) {
-  _playing = !_playing;
-  document.getElementById('playIco').innerHTML =
-    '<use href="' + (_playing ? '#i-pause' : '#i-play') + '"/>';
-  /* WIRE TO: mixer.timeScale = _playing ? 1 : 0; */
-  if (_playing) _animTl();
-  else { cancelAnimationFrame(_raf); _raf = null; }
-};
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+    camera.position.set(0, 0, 5);
 
-function _animTl() {
-  _tlPct = (_tlPct + 0.04) % 100;
-  document.getElementById('tlprog').style.width = _tlPct + '%';
-  var tot = 150;
-  var cur = Math.round(tot * _tlPct / 100);
-  document.getElementById('tltime').textContent =
-    Math.floor(cur / 60) + ':' + (cur % 60 < 10 ? '0' : '') + (cur % 60) + ' / 2:30';
-  _raf = requestAnimationFrame(_animTl);
+    const mount = document.getElementById('viewport-mount');
+    if (!mount) {
+        console.error("Viewport mount not found!");
+        return;
+    }
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(mount.clientWidth || window.innerWidth, mount.clientHeight || window.innerHeight);
+    mount.innerHTML = ''; 
+    mount.appendChild(renderer.domElement);
+
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    window.addEventListener('resize', () => {
+        camera.aspect = mount.clientWidth / mount.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(mount.clientWidth, mount.clientHeight);
+    });
+
+    animate();
+}
+window.initViewer = initViewer;
+
+export function loadModel(path) {
+    const loader = new GLTFLoader();
+    console.log("Attempting to load model from:", path);
+
+    const onModelLoaded = (gltf) => {
+        if (currentModel) scene.remove(currentModel);
+
+        const innerModel = gltf.scene;
+
+        // Calculate original box to find the center
+        const box = new THREE.Box3().setFromObject(innerModel);
+        const center = box.getCenter(new THREE.Vector3());
+        
+        // Shift inner model so its visual center is at (0, 0, 0)
+        innerModel.position.sub(center);
+
+        // Put it in a wrapper
+        currentModel = new THREE.Group();
+        currentModel.add(innerModel);
+
+        // SCALE based on original box size
+        const size = box.getSize(new THREE.Vector3()).length();
+        const targetScale = 3 / size;
+        
+        // Start from scale 0 for animation
+        currentModel.scale.set(0, 0, 0);
+        scene.add(currentModel);
+
+        // Animate up
+        if (window.gsap) {
+            gsap.to(currentModel.scale, {
+                x: targetScale, y: targetScale, z: targetScale,
+                duration: 0.8,
+                ease: "power3.out"
+            });
+        } else {
+            currentModel.scale.setScalar(targetScale);
+        }
+
+        // CAMERA AUTO FIT
+        camera.position.set(0, 0, 5);
+        camera.lookAt(0, 0, 0);
+        if (controls) {
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+
+        console.log("MODEL LOADED ✅", path);
+
+        const objInfo = document.getElementById('objInfo');
+        if (objInfo) objInfo.textContent = path.split('/').pop();
+    };
+
+    if (currentModel && window.gsap) {
+        // Animate out current model before loading new one
+        gsap.to(currentModel.scale, {
+            x: 0, y: 0, z: 0,
+            duration: 0.4,
+            ease: "power2.in",
+            onComplete: () => {
+                loader.load(path, onModelLoaded, undefined, (err) => console.error("MODEL LOAD ERROR ❌", err));
+            }
+        });
+    } else {
+        loader.load(path, onModelLoaded, undefined, (err) => console.error("MODEL LOAD ERROR ❌", err));
+    }
+}
+window.loadModel = loadModel;
+
+function highlightObject(obj) {
+    if (!obj || !obj.isMesh) return;
+    
+    // Original color backup
+    if (!obj.material._originalEmissive) {
+        obj.material._originalEmissive = obj.material.emissive ? obj.material.emissive.getHex() : 0x000000;
+    }
+    
+    // Highlight effect
+    if (obj.material.emissive) {
+        obj.material.emissive.setHex(0x3b82f6); // Scientific Blue
+        setTimeout(() => {
+            obj.material.emissive.setHex(obj.material._originalEmissive);
+        }, 1200);
+    }
 }
 
-window.seekTl = function (e, track) {
-  var r = track.getBoundingClientRect();
-  _tlPct = Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100));
-  document.getElementById('tlprog').style.width = _tlPct + '%';
-  /* WIRE TO: mixer.setTime(animDuration * _tlPct / 100); */
-};
+function zoomToObject(obj) {
+    if (!obj || !controls) return;
 
-/* ── MODEL LIBRARY ───────────────────────────────────────────
-   LIB_MODELS is the flat list shown on the Library page.
-   Add entries here as you add models.
-─────────────────────────────────────────────────────────── */
-var LIB_MODELS = [
-  { name: 'Intel Core i9 i9-13900K', cat: 'Hardware', sub: 'CPU', ico: 'i-cpu', badge: 'badge-b', k: 'CPU' },
-  { name: 'AMD Ryzen 9 7950X Die', cat: 'Hardware', sub: 'CPU', ico: 'i-cpu', badge: 'badge-b', k: 'CPU' },
-  { name: 'NVIDIA RTX 4090 GA102', cat: 'Hardware', sub: 'GPU', ico: 'i-gpu', badge: 'badge-g', k: 'GPU' },
-  { name: 'AMD Radeon RX 7900 XTX', cat: 'Hardware', sub: 'GPU', ico: 'i-gpu', badge: 'badge-g', k: 'GPU' },
-  { name: 'Intel Z790 Motherboard', cat: 'Hardware', sub: 'Motherboard', ico: 'i-mb', badge: 'badge-o', k: 'Motherboard' },
-  { name: 'Samsung DDR5-6000 DIMM', cat: 'Hardware', sub: 'RAM', ico: 'i-ram', badge: 'badge-b', k: 'RAM' },
-  { name: 'Human Heart \u2014 Anatomy', cat: 'Biology', sub: 'Cardiology', ico: 'i-heart', badge: 'badge-r', k: 'Heart' },
-  { name: 'Human Lung', cat: 'Biology', sub: 'Pulmonology', ico: 'i-heart', badge: 'badge-r', k: 'Heart' },
-  { name: 'Carbon Atom C-12', cat: 'Chemistry', sub: 'Atomic', ico: 'i-atom', badge: 'badge-p', k: 'Atom' },
-  { name: 'Water Molecule H\u2082O', cat: 'Chemistry', sub: 'Molecular', ico: 'i-atom', badge: 'badge-p', k: 'Atom' },
-  { name: 'Intel 13th Gen Cache', cat: 'Hardware', sub: 'CPU', ico: 'i-cpu', badge: 'badge-b', k: 'CPU' },
-  { name: 'PCIe 5.0 NVMe SSD', cat: 'Hardware', sub: 'Storage', ico: 'i-mb', badge: 'badge-o', k: 'Motherboard' }
-];
+    const box = new THREE.Box3().setFromObject(obj);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
 
-function renderLib(filter) {
-  var grid = document.getElementById('modelGrid');
-  if (!grid) return;
-  var items = filter === 'all'
-    ? LIB_MODELS
-    : LIB_MODELS.filter(function (m) { return m.cat === filter; });
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = camera.fov * (Math.PI / 180);
+    let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
 
-  grid.innerHTML = items.map(function (m) {
-    return '<div class="model-card" onclick="openModel(\'' + m.k + '\')">' +
-      '<div class="mc-thumb"><svg width="36" height="36" class="mc-thumb-ico"><use href="#' + m.ico + '"/></svg></div>' +
-      '<div class="mc-name">' + m.name + '</div>' +
-      '<div class="mc-cat">' + m.cat + ' &middot; ' + m.sub + '</div>' +
-      '<div class="mc-meta"><span class="badge ' + m.badge + '">' + m.sub + '</span></div>' +
-      '</div>';
-  }).join('');
+    cameraZ *= 2.2; // Perspective factor
+
+    // Update target and zoom
+    controls.target.copy(center);
+    camera.position.set(center.x, center.y, center.z + cameraZ);
+    camera.lookAt(center);
+    controls.update();
 }
 
-window.filterLib = function (filter, btn) {
-  document.querySelectorAll('#pg-library .badge[onclick]').forEach(function (b) {
-    b.style.background = 'var(--bg2)';
-    b.style.borderColor = 'var(--bdr)';
-    b.style.color = 'var(--t2)';
-  });
-  btn.style.background = 'rgba(79,142,247,.12)';
-  btn.style.borderColor = 'rgba(79,142,247,.22)';
-  btn.style.color = 'var(--ac)';
-  renderLib(filter);
-};
+window.highlightObject = highlightObject;
+window.zoomToObject = zoomToObject;
 
-/* Initial render — called from main.js after DOM is ready */
-window._initLibrary = function () {
-  renderLib('all');
-};
+window.addEventListener("click", (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    if (!currentModel) return;
+
+    const intersects = raycaster.intersectObjects(currentModel.children, true);
+
+    if (intersects.length > 0) {
+        const clicked = intersects[0].object;
+        let partName = clicked.name;
+
+        if (!partName || partName.toLowerCase().includes("mesh")) {
+            partName = clicked.parent?.name || "Unknown Part";
+        }
+
+        console.log("Clicked:", partName);
+
+        // Fast UX: Zoom + Explain
+        window.zoomToObject(clicked);
+        window.highlightObject(clicked);
+
+        if (window.handlePartClick) {
+            window.handlePartClick(partName);
+        }
+    }
+});
+
+function animate() {
+    requestAnimationFrame(animate);
+    if (controls) controls.update();
+    if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+    }
+}

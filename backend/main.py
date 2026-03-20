@@ -1,43 +1,35 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from ai_engine import get_component_explanation
+from ai_engine import get_explanation
 
 app = FastAPI(title="CircuitMind 3D Backend")
 
-# Enable CORS for frontend interaction
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-class PartRequest(BaseModel):
-    part: str
 
 @app.get("/")
 async def root():
     return {"message": "CircuitMind 3D Backend is running"}
 
 @app.post("/explain-part")
-async def explain_part(request: PartRequest):
+def explain(data: dict):
+    part = data.get("part", "")
+    model = data.get("model", "")
+
+    prompt = f"""
+    Explain the {part} in a {model} in simple terms.
+    Explain what it does and why it is important.
+    Keep it short and beginner-friendly.
     """
-    Endpoint to get an AI-generated explanation for a specific hardware part.
-    """
-    if not request.part:
-        raise HTTPException(status_code=400, detail="Part name is required")
-    
-    explanation = get_component_explanation(request.part)
-    
-    if "Error generating explanation" in explanation:
-        raise HTTPException(status_code=500, detail=explanation)
-        
-    return {
-        "part": request.part,
-        "explanation": explanation
-    }
+
+    explanation = get_explanation(prompt)
+
+    return {"explanation": explanation}
 
 if __name__ == "__main__":
     import uvicorn

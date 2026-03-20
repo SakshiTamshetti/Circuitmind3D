@@ -94,9 +94,27 @@ window.sendMsg = function () {
      return (await res.json()).content[0].text;
 ─────────────────────────────────────────────────────────── */
 async function _getAIResponse(text, ctx) {
-  /* STUB — replace above */
-  return 'Connect your ML model in <strong>js/chat.js → _getAIResponse()</strong>. ' +
-    'Question: "<em>' + text.substring(0, 80) + '</em>" | Context: <strong>' + ctx + '</strong>';
+    try {
+        const res = await fetch("http://127.0.0.1:8000/explain-part", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                part: text,
+                model: ctx
+            })
+        });
+
+        if (!res.ok) throw new Error("Backend error");
+
+        const data = await res.json();
+        return data.explanation;
+
+    } catch (err) {
+        console.error("Chat API Error:", err);
+        return "Sorry, I'm having trouble connecting to the AI. Is the backend running?";
+    }
 }
 
 /* ── helpers ─────────────────────────────────────────────── */

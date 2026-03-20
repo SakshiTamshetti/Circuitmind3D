@@ -1,0 +1,6 @@
+@echo off
+echo Starting CircuitMind 3D Backend...
+start cmd /k "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000"
+echo Starting Frontend Server...
+python -m http.server 5500
+pause

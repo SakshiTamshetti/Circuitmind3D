@@ -20,6 +20,9 @@ The easiest way to run the project is using the automated script:
 
 ---
 
+> [!TIP]
+> **Quickest way to run:** Just execute `.\run.bat` (Windows) from the project root — it starts both the backend and frontend automatically and opens the browser for you.
+
 ### Manual Setup
 If you prefer to run things manually or are not on Windows:
 

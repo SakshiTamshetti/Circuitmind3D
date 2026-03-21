@@ -14,7 +14,7 @@ export function initViewer() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0f172a);
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 10000);
     camera.position.set(0, 0, 5);
 
     const mount = document.getElementById('viewport-mount');
@@ -31,6 +31,8 @@ export function initViewer() {
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
+    controls.minDistance = 0.5;
+    controls.maxDistance = 50;
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
@@ -69,43 +71,34 @@ export function loadModel(path) {
             mixer = null;
         }
 
-        // Calculate original box to find the center, purely based on visible meshes
-        const box = new THREE.Box3();
-        let hasVisibleMesh = false;
-        innerModel.traverse((child) => {
-            if (child.isMesh && child.visible) {
-                if (child.material && child.material.transparent && child.material.opacity === 0) return;
-                child.updateMatrixWorld();
-                if (child.geometry) {
-                    if (!child.geometry.boundingBox) child.geometry.computeBoundingBox();
-                    const meshBox = child.geometry.boundingBox.clone();
-                    meshBox.applyMatrix4(child.matrixWorld);
-                    box.union(meshBox);
-                    hasVisibleMesh = true;
-                }
-            }
-        });
-        
-        if (!hasVisibleMesh || box.isEmpty()) {
-            box.setFromObject(innerModel);
-        }
-
-        const center = box.getCenter(new THREE.Vector3());
-        
-        // Shift inner model so its visual center is at (0, 0, 0)
-        innerModel.position.sub(center);
-
-        // Put it in a wrapper
+        // Wrap the model and add to scene — group stays at world origin (0,0,0)
         currentModel = new THREE.Group();
         currentModel.add(innerModel);
+        scene.add(currentModel);
 
-        // SCALE based on original box size. Reduced scale to 2.2 to grant breathing room in the FOV.
+        // Force full world matrix update now that model is in the scene graph
+        currentModel.updateMatrixWorld(true);
+
+        // Box3.setFromObject handles ALL node types: Mesh, SkinnedMesh, LOD, etc.
+        const box = new THREE.Box3().setFromObject(currentModel);
+
+        // Compute the geometric center in world space.
+        // Since the group is at (0,0,0), world center == group-local center.
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+
+        // CRITICAL: shift the innerModel (not the group) so the geometry center
+        // lands exactly at the group's local origin (0,0,0).
+        // The group itself stays at world (0,0,0) so GSAP scales around the
+        // geometry center — which is what makes it look centered.
+        innerModel.position.sub(center);
+
+        // SCALE based on bounding box diagonal so model always fills the view
         const size = box.getSize(new THREE.Vector3()).length();
         const targetScale = (size === 0) ? 1 : 2.2 / size;
-        
+
         // Start from scale 0 for animation
         currentModel.scale.set(0, 0, 0);
-        scene.add(currentModel);
 
         // Animate up
         if (window.gsap) {

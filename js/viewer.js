@@ -4,6 +4,8 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 let scene, camera, renderer, controls;
 let currentModel;
+let mixer;
+const clock = new THREE.Clock();
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -52,12 +54,42 @@ export function loadModel(path) {
     console.log("Attempting to load model from:", path);
 
     const onModelLoaded = (gltf) => {
-        if (currentModel) scene.remove(currentModel);
+        if (currentModel) {
+            scene.remove(currentModel);
+        }
 
         const innerModel = gltf.scene;
 
-        // Calculate original box to find the center
-        const box = new THREE.Box3().setFromObject(innerModel);
+        if (gltf.animations && gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(innerModel);
+            gltf.animations.forEach((clip) => {
+                mixer.clipAction(clip).play();
+            });
+        } else {
+            mixer = null;
+        }
+
+        // Calculate original box to find the center, purely based on visible meshes
+        const box = new THREE.Box3();
+        let hasVisibleMesh = false;
+        innerModel.traverse((child) => {
+            if (child.isMesh && child.visible) {
+                if (child.material && child.material.transparent && child.material.opacity === 0) return;
+                child.updateMatrixWorld();
+                if (child.geometry) {
+                    if (!child.geometry.boundingBox) child.geometry.computeBoundingBox();
+                    const meshBox = child.geometry.boundingBox.clone();
+                    meshBox.applyMatrix4(child.matrixWorld);
+                    box.union(meshBox);
+                    hasVisibleMesh = true;
+                }
+            }
+        });
+        
+        if (!hasVisibleMesh || box.isEmpty()) {
+            box.setFromObject(innerModel);
+        }
+
         const center = box.getCenter(new THREE.Vector3());
         
         // Shift inner model so its visual center is at (0, 0, 0)
@@ -67,9 +99,9 @@ export function loadModel(path) {
         currentModel = new THREE.Group();
         currentModel.add(innerModel);
 
-        // SCALE based on original box size
+        // SCALE based on original box size. Reduced scale to 2.2 to grant breathing room in the FOV.
         const size = box.getSize(new THREE.Vector3()).length();
-        const targetScale = 3 / size;
+        const targetScale = (size === 0) ? 1 : 2.2 / size;
         
         // Start from scale 0 for animation
         currentModel.scale.set(0, 0, 0);
@@ -98,6 +130,10 @@ export function loadModel(path) {
 
         const objInfo = document.getElementById('objInfo');
         if (objInfo) objInfo.textContent = path.split('/').pop();
+
+        if (window.showModelDescription) {
+            window.showModelDescription(window.currentTopicKey || path.split('/').pop().replace('.glb', ''));
+        }
     };
 
     if (currentModel && window.gsap) {
@@ -136,7 +172,27 @@ function highlightObject(obj) {
 function zoomToObject(obj) {
     if (!obj || !controls) return;
 
-    const box = new THREE.Box3().setFromObject(obj);
+    // Smart bounding box for the target object ignoring invisible bounds
+    const box = new THREE.Box3();
+    let hasVisibleMesh = false;
+    obj.traverse((child) => {
+        if (child.isMesh && child.visible) {
+            if (child.material && child.material.transparent && child.material.opacity === 0) return;
+            child.updateMatrixWorld();
+            if (child.geometry) {
+                if (!child.geometry.boundingBox) child.geometry.computeBoundingBox();
+                const meshBox = child.geometry.boundingBox.clone();
+                meshBox.applyMatrix4(child.matrixWorld);
+                box.union(meshBox);
+                hasVisibleMesh = true;
+            }
+        }
+    });
+
+    if (!hasVisibleMesh || box.isEmpty()) {
+        box.setFromObject(obj);
+    }
+
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
 
@@ -144,14 +200,49 @@ function zoomToObject(obj) {
     const fov = camera.fov * (Math.PI / 180);
     let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
 
-    cameraZ *= 2.2; // Perspective factor
+    cameraZ *= 2.6; // Increased perspective factor so close-ups don't feel too cramped
 
-    // Update target and zoom
-    controls.target.copy(center);
-    camera.position.set(center.x, center.y, center.z + cameraZ);
-    camera.lookAt(center);
-    controls.update();
+    if (window.gsap) {
+        gsap.to(controls.target, { x: center.x, y: center.y, z: center.z, duration: 1.0, ease: "power3.out" });
+        gsap.to(camera.position, { 
+            x: center.x, 
+            y: center.y, 
+            z: center.z + cameraZ, 
+            duration: 1.0, 
+            ease: "power3.out" 
+        });
+    } else {
+        controls.target.copy(center);
+        camera.position.set(center.x, center.y, center.z + cameraZ);
+        camera.lookAt(center);
+        controls.update();
+    }
 }
+
+window.focusPartByName = function(partName) {
+    if (!currentModel) return;
+    let target = null;
+    currentModel.traverse((child) => {
+        if (!child.name) return;
+        const cname = child.name.toLowerCase();
+        const pname = partName.toLowerCase();
+        
+        // Exact or fuzzy match to link part to 3D node
+        if (cname.includes(pname) || pname.includes(cname)) {
+            if (!target && child.isMesh) target = child;
+        } else if (child.parent && child.parent.name) {
+            const pcname = child.parent.name.toLowerCase();
+            if (pcname.includes(pname) || pname.includes(pcname)) {
+                if (!target && child.isMesh) target = child;
+            }
+        }
+    });
+
+    if (target) {
+        window.zoomToObject(target);
+        window.highlightObject(target);
+    }
+};
 
 window.highlightObject = highlightObject;
 window.zoomToObject = zoomToObject;
@@ -188,6 +279,8 @@ window.addEventListener("click", (event) => {
 
 function animate() {
     requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
     if (controls) controls.update();
     if (renderer && scene && camera) {
         renderer.render(scene, camera);

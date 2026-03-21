@@ -1,8 +1,13 @@
 let currentTopicKey = 'computer';
 
 window.openModel = function (key) {
+  if (key) key = key.toLowerCase();
   var d = window.topics[key];
   if (!d) return;
+
+  // Reset description panel
+  const compDesc = document.getElementById("compDesc");
+  if (compDesc) compDesc.style.display = 'none';
 
   currentTopicKey = key;
 
@@ -16,14 +21,13 @@ window.openModel = function (key) {
   const pcat = document.getElementById('pcat');
   if (pcat) pcat.textContent = d.cat;
 
+
   /* Load Main Model */
   if (window.loadModel) window.loadModel(d.model);
 
   /* Component chips */
   renderChips(d.parts);
   
-  const compDesc = document.getElementById('compDesc');
-  if (compDesc) compDesc.style.display = 'none';
 
   window.G('viewer');
 };
@@ -71,5 +75,8 @@ window.selChip = function (el, name) {
   }
     
   // 3. Request AI Explanation context
-  if (window.handlePartClick) window.handlePartClick(name);
+  if (window.showComponentDescription) window.showComponentDescription(name);
+  
+  // 4. Center and zoom to the part gracefully in 3D
+  if (window.focusPartByName) window.focusPartByName(name);
 };

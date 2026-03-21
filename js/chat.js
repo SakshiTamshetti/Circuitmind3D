@@ -94,26 +94,55 @@ window.sendMsg = function () {
      return (await res.json()).content[0].text;
 ─────────────────────────────────────────────────────────── */
 async function _getAIResponse(text, ctx) {
+    // Retry helper with exponential backoff
+    async function fetchWithRetry(maxRetries = 3, baseDelay = 500) {
+        let lastError;
+        
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                const res = await fetch("http://127.0.0.1:8000/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        question: text,
+                        context: ctx
+                    })
+                });
+
+                if (!res.ok) {
+                    // Don't retry on client errors (4xx)
+                    if (res.status >= 400 && res.status < 500) {
+                        throw new Error("Client error: " + res.status);
+                    }
+                    throw new Error("Server error: " + res.status);
+                }
+
+                const data = await res.json();
+                return data.answer;
+
+            } catch (err) {
+                lastError = err;
+                
+                // Retry on network errors, timeouts, or 5xx errors
+                if (attempt < maxRetries - 1) {
+                    const delay = baseDelay * Math.pow(2, attempt);
+                    console.log(`Chat retry ${attempt + 1}/${maxRetries} in ${delay}ms...`, err.message);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                } else {
+                    console.error("Chat request failed after retries:", err);
+                }
+            }
+        }
+        throw lastError;
+    }
+
     try {
-        const res = await fetch("http://127.0.0.1:8000/explain-part", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                part: text,
-                model: ctx
-            })
-        });
-
-        if (!res.ok) throw new Error("Backend error");
-
-        const data = await res.json();
-        return data.explanation;
-
+        return await fetchWithRetry(3, 500);
     } catch (err) {
         console.error("Chat API Error:", err);
-        return "Sorry, I'm having trouble connecting to the AI. Is the backend running?";
+        return "The AI is temporarily unavailable. Please try again in a moment.";
     }
 }
 

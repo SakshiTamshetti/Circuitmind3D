@@ -1,4 +1,5 @@
 let currentTopicKey = 'computer';
+window.currentTopicKey = currentTopicKey;
 
 window.openModel = function (key) {
   if (key) key = key.toLowerCase();
@@ -10,6 +11,7 @@ window.openModel = function (key) {
   if (compDesc) compDesc.style.display = 'none';
 
   currentTopicKey = key;
+  window.currentTopicKey = key;
 
   /* Breadcrumb & Panels */
   const vbc = document.getElementById('vbc');

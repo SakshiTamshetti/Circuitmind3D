@@ -142,6 +142,9 @@ async function _getAIResponse(text, ctx) {
         return await fetchWithRetry(3, 500);
     } catch (err) {
         console.error("Chat API Error:", err);
+        if (err.message && err.message.includes("Failed to fetch")) {
+            return "The AI Backend is offline. Please make sure your server script is running.";
+        }
         return "The AI is temporarily unavailable. Please try again in a moment.";
     }
 }

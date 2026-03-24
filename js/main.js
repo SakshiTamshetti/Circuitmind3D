@@ -1,4 +1,5 @@
 import { initViewer, loadModel } from "./viewer.js";
+import { KNOWLEDGE } from "./knowledge.js";
 
 window.loadModel = loadModel;
 window.initViewer = initViewer;
@@ -11,6 +12,42 @@ window.currentComponent = null;
 const requestInProgress = new Map();
 const lastRequestTime = new Map();
 const DEBOUNCE_MS = 500; // Prevent duplicate clicks within 500ms
+
+const aiCache = {};
+
+async function getExplanation(part, modelKey, modelTitle) {
+    // 1. CHECK STATIC FIRST
+    const modelData = KNOWLEDGE[modelKey];
+
+    if (modelData) {
+        if (!part && modelData.overview) {
+            return modelData.overview;
+        }
+        if (part && modelData.parts && modelData.parts[part]) {
+            return modelData.parts[part];
+        }
+    }
+
+    // 2. FALLBACK TO AI
+    console.log("Using AI fallback...");
+    const cacheKey = part ? `part:${modelKey}:${part}` : `overview:${modelKey}`;
+    if (aiCache[cacheKey]) return aiCache[cacheKey];
+
+    const endpoint = part ? "explain-part" : "model-overview";
+    const body = part ? { part, model: modelTitle } : { model: modelTitle };
+
+    const res = await fetch(`http://127.0.0.1:8000/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const result = part ? data.explanation : data.overview;
+    aiCache[cacheKey] = result;
+    return result;
+}
 
 /**
  * Retry helper with exponential backoff
@@ -100,29 +137,24 @@ window.showComponentDescription = async function(partName) {
     
     try {
         const explanation = await retryWithBackoff(
-            async () => {
-                const res = await fetch("http://127.0.0.1:8000/explain-part", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ part: partName, model: topic.title })
-                });
-                
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            },
+            () => getExplanation(partName, topicKey, topic.title),
             3,
             500
         );
         
         if (fetchId !== currentAiFetchId) return;
 
-        showExplanation(explanation.explanation);
-        speak(explanation.explanation);
+        showExplanation(explanation);
+        speak(explanation);
 
     } catch (err) {
         if (fetchId !== currentAiFetchId) return;
         console.error("Error fetching explanation:", err);
-        showExplanation("Could not fetch description. Please try again.");
+        if (err.message && err.message.includes("Failed to fetch")) {
+            showExplanation("The AI Server is currently offline. Please run your backend script.");
+        } else {
+            showExplanation("Could not fetch description. Please try again.");
+        }
     } finally {
         requestInProgress.delete(requestKey);
     }
@@ -161,29 +193,24 @@ window.showModelDescription = async function(modelKey) {
     if ('speechSynthesis' in window) speechSynthesis.cancel();
     
     try {
-        const data = await retryWithBackoff(
-            async () => {
-                const res = await fetch("http://127.0.0.1:8000/model-overview", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: modelName })
-                });
-                
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            },
+        const dataText = await retryWithBackoff(
+            () => getExplanation(null, modelKey, modelName),
             3,
             500
         );
         
         if (fetchId !== currentAiFetchId) return;
 
-        showExplanation(data.overview);
-        speak(data.overview);
+        showExplanation(dataText);
+        speak(dataText);
     } catch (err) {
         if (fetchId !== currentAiFetchId) return;
         console.error("Error fetching overview:", err);
-        showExplanation("Could not fetch overview. Please try again.");
+        if (err.message && err.message.includes("Failed to fetch")) {
+            showExplanation("The AI Server is currently offline. Please run your backend script.");
+        } else {
+            showExplanation("Could not fetch overview. Please try again.");
+        }
     } finally {
         requestInProgress.delete(requestKey);
     }

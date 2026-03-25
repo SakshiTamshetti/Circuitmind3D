@@ -1,19 +1,49 @@
-# PeekInside (CircuitMind 3D)
+# CircuitMind 3D
 
-An interactive, educational 3D model explorer designed to explain complex anatomical, electronic, and biological structures dynamically. The application seamlessly combines Three.js rendering with a highly robust, fault-tolerant AI backend to ensure users receive instant, accurate educational insights whenever they interact with a model component.
+![Three.js](https://img.shields.io/badge/Three.js-3D-black?style=for-the-badge&logo=three.js)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?style=for-the-badge&logo=fastapi)
+![AI Powered](https://img.shields.io/badge/AI-Groq%20%7C%20Gemini-blueviolet?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
-## 🚀 Features
-
-- **Interactive 3D Exploration**: Built on **Three.js** to render rich `.glb` models with smooth GSAP animations and camera framing.
-- **Hierarchical Navigation**: Journey seamlessly from system-level views to microscopic components (e.g., Computer Hardware -> Motherboard -> USB Ports).
-- **Raycast Interaction**: Click on specific regions/meshes of the 3D models to trigger real-time AI descriptions and visual highlighting.
-- **Built-in AI Assistant**: Interactive chat environment context-aware of the model you are currently exploring.
+> 🧠 An interactive 3D learning playground where curiosity meets cutting-edge tech.
 
 ---
+
+## 📖 About
+
+**CircuitMind3D** is an interactive 3D learning playground where curiosity meets cutting-edge tech. Whether you're exploring the human heart, a computer motherboard, or microscopic biology, this app lets you *click, explore, and instantly understand* complex structures like never before.
+
+---
+
+## 🚀 What Makes It Awesome?
+
+### 🧊 Interactive 3D Exploration
+
+Dive into beautifully rendered `.glb` models powered by **Three.js**, enhanced with smooth **GSAP animations** and intelligent camera movements. It’s not just viewing—it’s experiencing.
+
+### 🧭 Smart Navigation
+
+Start big, go small. Seamlessly zoom from entire systems down to tiny components:  
+**Computer → Motherboard → USB Port → Internal Pins**
+
+### 🎯 Click-to-Learn (Raycasting Magic)
+
+Click any part of a model and *boom*—you get an instant, AI-powered explanation with visual highlighting. Learning has never been this direct.
+
+### 🤖 Built-in AI Guide
+
+Got questions? There’s a chat assistant that *knows exactly what you're looking at* and helps you understand it better in real time.
+
+---
+
+
 
 ## 🧠 Fault-Tolerant "3-Tier" AI Architecture
 
 To ensure speed, extreme reliability, and absolutely zero downtime or rate limit blockages, the backend AI system utilizes a custom failover router connecting multiple providers.
+
+<img width="500" height="500" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/76f52d59-1011-439b-8b87-337741c5dcec" />
 
 ### The 3 Layers:
 1. **Tier 1: Static Knowledge Layer (Instant)**
@@ -93,3 +123,6 @@ Navigate to `http://127.0.0.1:5500` in your web browser.
 ├── index.html       # Primary UI frame
 └── run.bat          # Concurrent Bootstrapper
 ```
+---
+## 🤝 Contributing
+Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to add.
